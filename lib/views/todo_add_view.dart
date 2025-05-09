@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_models/todo_view_model.dart';
+import '../widgets/EmotionLevelDropdown.dart';
 
 class TodoAddView extends StatefulWidget {
   const TodoAddView({Key? key}) : super(key: key);
@@ -14,6 +15,7 @@ class _TodoAddViewState extends State<TodoAddView> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   bool _isImportant = false;
+  int _emotionLevel = 2; // デフォルトは「普通」
 
   @override
   void dispose() {
@@ -82,6 +84,7 @@ class _TodoAddViewState extends State<TodoAddView> {
                   maxLines: 5,
                 ),
                 const SizedBox(height: 16.0),
+                // 重要なタスクスイッチ
                 Card(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Padding(
@@ -102,6 +105,10 @@ class _TodoAddViewState extends State<TodoAddView> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16.0),
+                // 感情レベル選択ドロップダウン
+                // モバイル画面では高さの制約があるため、必要に応じてカスタマイズ
+                buildEmotionLevelSelector(context, colorScheme),
                 const SizedBox(height: 36.0),
                 FilledButton.icon(
                   onPressed: () {
@@ -110,6 +117,7 @@ class _TodoAddViewState extends State<TodoAddView> {
                       viewModel.addTodo(
                         _titleController.text,
                         _descriptionController.text,
+                        _emotionLevel,
                       );
 
                       Navigator.pop(context);
@@ -135,6 +143,92 @@ class _TodoAddViewState extends State<TodoAddView> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  // カスタムの感情レベル選択ウィジェット
+  Widget buildEmotionLevelSelector(BuildContext context, ColorScheme colorScheme) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.emoji_emotions,
+                  color: colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '感情レベル',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // 感情を表すアイコンを表示
+            Icon(
+              EmotionLevelHelper.getIconData(_emotionLevel),
+              color: EmotionLevelHelper.getColor(_emotionLevel, context),
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<int>(
+              value: _emotionLevel,
+              isExpanded: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              items: [
+                DropdownMenuItem<int>(
+                  value: 1,
+                  child: Text('😊 簡単'),
+                ),
+                DropdownMenuItem<int>(
+                  value: 2,
+                  child: Text('😐 普通'),
+                ),
+                DropdownMenuItem<int>(
+                  value: 3,
+                  child: Text('😓 やや難しい'),
+                ),
+                DropdownMenuItem<int>(
+                  value: 4,
+                  child: Text('😩 やる気が出ない'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _emotionLevel = value;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 4),
+            // 選択中の感情レベルの説明テキスト
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Text(
+                EmotionLevelHelper.getDescription(_emotionLevel),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

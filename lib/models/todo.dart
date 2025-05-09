@@ -7,6 +7,7 @@ class Todo {
   DateTime? workEndTime;       // 作業終了時間
   List<WorkSession> workSessions = []; // 複数の作業セッションを記録
   bool isWorking = false;      // 現在作業中かどうか
+  int emotionLevel;            // 感情レベル: 1=簡単, 2=普通, 3=やや難しい, 4=やる気が出ない
 
   Todo({
     required this.id,
@@ -17,6 +18,7 @@ class Todo {
     this.workEndTime,
     this.isWorking = false,
     List<WorkSession>? workSessions,
+    this.emotionLevel = 2,     // デフォルトは「普通」
   }) : this.workSessions = workSessions ?? [];
 
   factory Todo.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class Todo {
           : null,
       isWorking: json['isWorking'] ?? false,
       workSessions: sessions,
+      emotionLevel: json['emotionLevel'] ?? 2,
     );
   }
 
@@ -53,6 +56,7 @@ class Todo {
       'workEndTime': workEndTime?.toIso8601String(),
       'isWorking': isWorking,
       'workSessions': workSessions.map((session) => session.toJson()).toList(),
+      'emotionLevel': emotionLevel,
     };
   }
 
@@ -65,6 +69,7 @@ class Todo {
     DateTime? workEndTime,
     bool? isWorking,
     List<WorkSession>? workSessions,
+    int? emotionLevel,
   }) {
     return Todo(
       id: id ?? this.id,
@@ -75,6 +80,7 @@ class Todo {
       workEndTime: workEndTime ?? this.workEndTime,
       isWorking: isWorking ?? this.isWorking,
       workSessions: workSessions ?? this.workSessions,
+      emotionLevel: emotionLevel ?? this.emotionLevel,
     );
   }
 
@@ -108,6 +114,22 @@ class Todo {
       return '$minutes分$seconds秒';
     } else {
       return '$seconds秒';
+    }
+  }
+
+  // 感情レベルの文字列表現を取得
+  String getEmotionLevelText() {
+    switch (emotionLevel) {
+      case 1:
+        return '簡単';
+      case 2:
+        return '普通';
+      case 3:
+        return 'やや難しい';
+      case 4:
+        return 'やる気が出ない';
+      default:
+        return '普通';
     }
   }
 }

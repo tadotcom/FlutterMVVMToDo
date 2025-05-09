@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/todo.dart';
 import '../view_models/todo_view_model.dart';
+import '../widgets/EmotionLevelDropdown.dart';
 import 'todo_add_view.dart';
 
 class TodoListView extends StatefulWidget {
@@ -159,18 +160,40 @@ class _TodoListViewState extends State<TodoListView> {
                                   horizontal: 16.0,
                                   vertical: 8.0,
                                 ),
-                                title: Text(
-                                  todo.title,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    decoration: todo.isCompleted
-                                        ? TextDecoration.lineThrough
-                                        : null,
-                                    color: todo.isCompleted
-                                        ? Theme.of(context).colorScheme.onSurfaceVariant
-                                        : Theme.of(context).colorScheme.onSurface,
-                                  ),
+                                title: Row(
+                                  children: [
+                                    // 感情レベルのアイコン
+                                    Container(
+                                      padding: const EdgeInsets.all(4.0),
+                                      decoration: BoxDecoration(
+                                        color: EmotionLevelHelper.getColor(
+                                            todo.emotionLevel, context).withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        EmotionLevelHelper.getIconData(todo.emotionLevel),
+                                        color: EmotionLevelHelper.getColor(
+                                            todo.emotionLevel, context),
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        todo.title,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          decoration: todo.isCompleted
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                          color: todo.isCompleted
+                                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                                              : Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,119 +342,178 @@ class _TodoListViewState extends State<TodoListView> {
     final titleController = TextEditingController(text: todo.title);
     final descriptionController = TextEditingController(text: todo.description);
     final formKey = GlobalKey<FormState>();
+    int selectedEmotionLevel = todo.emotionLevel;
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          surfaceTintColor: Theme.of(context).colorScheme.surface,
-          title: const Text('TODOを編集'),
-          content: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: titleController,
-                  decoration: InputDecoration(
-                    labelText: 'タイトル',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+        return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                surfaceTintColor: Theme.of(context).colorScheme.surface,
+                title: Row(
+                  children: [
+                    Icon(
+                      EmotionLevelHelper.getIconData(selectedEmotionLevel),
+                      color: EmotionLevelHelper.getColor(selectedEmotionLevel, context),
                     ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'タイトルを入力してください';
-                    }
-                    return null;
-                  },
+                    const SizedBox(width: 8),
+                    const Text('TODOを編集'),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(
-                    labelText: '詳細',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                  ),
-                  maxLines: 3,
-                ),
-                if (todo.workSessions.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                content: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.timer_outlined, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          '合計作業時間: ${todo.getFormattedWorkDuration()}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
+                        TextFormField(
+                          controller: titleController,
+                          decoration: InputDecoration(
+                            labelText: 'タイトル',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'タイトルを入力してください';
+                            }
+                            return null;
+                          },
                         ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: descriptionController,
+                          decoration: InputDecoration(
+                            labelText: '詳細',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                          ),
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: 16),
+                        // 感情レベル選択
+                        DropdownButtonFormField<int>(
+                          value: selectedEmotionLevel,
+                          decoration: InputDecoration(
+                            labelText: '感情レベル',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                            prefixIcon: Icon(
+                              EmotionLevelHelper.getIconData(selectedEmotionLevel),
+                              color: EmotionLevelHelper.getColor(selectedEmotionLevel, context),
+                            ),
+                          ),
+                          items: [
+                            DropdownMenuItem<int>(
+                              value: 1,
+                              child: Text('😊 簡単'),
+                            ),
+                            DropdownMenuItem<int>(
+                              value: 2,
+                              child: Text('😐 普通'),
+                            ),
+                            DropdownMenuItem<int>(
+                              value: 3,
+                              child: Text('😓 やや難しい'),
+                            ),
+                            DropdownMenuItem<int>(
+                              value: 4,
+                              child: Text('😩 やる気が出ない'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                selectedEmotionLevel = value;
+                              });
+                            }
+                          },
+                        ),
+                        if (todo.workSessions.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.timer_outlined, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '合計作業時間: ${todo.getFormattedWorkDuration()}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),
-              ],
-            ),
-          ),
-          actions: [
-            if (todo.isWorking)
-              TextButton.icon(
-                onPressed: () {
-                  viewModel.toggleWorkTimer(todo.id);
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.pause),
-                label: const Text('作業を停止'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
                 ),
-              ),
-            if (!todo.isWorking && !todo.isCompleted)
-              TextButton.icon(
-                onPressed: () {
-                  viewModel.toggleWorkTimer(todo.id);
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('作業を開始'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                'キャンセル',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
-              ),
-            ),
-            FilledButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  viewModel.updateTodo(
-                    todo.id,
-                    titleController.text,
-                    descriptionController.text,
-                  );
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('更新'),
-            ),
-          ],
+                actions: [
+                  if (todo.isWorking)
+                    TextButton.icon(
+                      onPressed: () {
+                        viewModel.toggleWorkTimer(todo.id);
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.pause),
+                      label: const Text('作業を停止'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  if (!todo.isWorking && !todo.isCompleted)
+                    TextButton.icon(
+                      onPressed: () {
+                        viewModel.toggleWorkTimer(todo.id);
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.play_arrow),
+                      label: const Text('作業を開始'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      'キャンセル',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                  FilledButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        viewModel.updateTodo(
+                          todo.id,
+                          titleController.text,
+                          descriptionController.text,
+                          selectedEmotionLevel,
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('更新'),
+                  ),
+                ],
+              );
+            }
         );
       },
     );

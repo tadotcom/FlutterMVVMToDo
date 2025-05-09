@@ -16,12 +16,13 @@ class TodoViewModel extends ChangeNotifier {
     return workingTodoIndex != -1 ? _todos[workingTodoIndex].id : null;
   }
 
-  void addTodo(String title, String description) {
+  void addTodo(String title, String description, int emotionLevel) {
     final uuid = Uuid();
     final todo = Todo(
       id: uuid.v4(),
       title: title,
       description: description,
+      emotionLevel: emotionLevel,
     );
     _todos.add(todo);
     notifyListeners();
@@ -45,12 +46,13 @@ class TodoViewModel extends ChangeNotifier {
     }
   }
 
-  void updateTodo(String id, String title, String description) {
+  void updateTodo(String id, String title, String description, int emotionLevel) {
     final index = _todos.indexWhere((todo) => todo.id == id);
     if (index != -1) {
       _todos[index] = _todos[index].copyWith(
         title: title,
         description: description,
+        emotionLevel: emotionLevel,
       );
       notifyListeners();
     }
