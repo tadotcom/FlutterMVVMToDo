@@ -67,8 +67,33 @@
 - タスクの**開始時と終了時にタスクをタップ**することで、作業時間を記録。
 - **タスクのタイトルおよび詳細の横**に「作業時間記録ボタン」を設置。
 
+#### スクリーンショット
+
+- タスク入力時の感情の入力
+
+![1178_0](https://github.com/user-attachments/assets/8efdb828-9f32-4cd0-ba33-30f6d8342435)　
+![1177_0](https://github.com/user-attachments/assets/b077f2fc-1b88-4d3d-8daf-b6498b4aa1d1)
+
+- タスク一覧のリストに感情を表示
+
+![1176_0](https://github.com/user-attachments/assets/5b5b11f2-1ae3-42bb-a2ae-dff2ac2a340f)
+
 #### 作業時間ボタンの動作仕様
 
 - **1回目のタップ**：作業時間の計測を開始。
 - **2回目のタップ**：作業時間を一時中断。
 - **タスク完了時**：タイトルと詳細の横に**タスク完了にかかった時間**を表示する。
+
+#### スクリーンショット
+
+- タスクの開始時
+ 
+![1175_0](https://github.com/user-attachments/assets/9e1d1236-3c49-4251-9dce-80f21342e46c)
+
+- タスクの中断時
+
+![1174_0](https://github.com/user-attachments/assets/b5049238-6835-4b34-92c9-620ab142edd3)
+
+- タスクの終了時
+
+![1173_0](https://github.com/user-attachments/assets/be940afc-f695-4011-bd4a-4167821cc66e)
